@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/parammehta/refract-ui/compare/v1.0.0...v1.0.1) (2026-08-21)
+
+
+### Bug Fixes
+
+* drop npm@latest bootstrap from the publish job ([608cc4d](https://github.com/parammehta/refract-ui/commit/608cc4dfd11efde5d4569f4f373b22e63671df23))
+
 ## 1.0.0 (2026-08-21)
 
 
