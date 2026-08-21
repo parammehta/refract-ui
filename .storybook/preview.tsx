@@ -35,6 +35,9 @@ const preview: Preview = {
   parameters: {
     layout: 'fullscreen',
     controls: { hideNoControlsWarning: true },
+    options: {
+      storySort: { order: ['Introduction', 'Theming', '*'] },
+    },
   },
 };
 

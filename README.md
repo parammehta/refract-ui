@@ -4,7 +4,8 @@ Themeable React component library — extracted from [parammehta.com](https://pa
 Primitives, form controls, and a couple of Three.js pieces (device models, a
 displacement carousel), with no Next.js or portfolio-specific coupling.
 
-Storybook: https://storybook.parammehta.com
+Storybook: https://storybook.parammehta.com — start on the Introduction and Theming pages
+for an overview and the token reference.
 
 ## Components
 
@@ -39,8 +40,10 @@ function App() {
 }
 ```
 
-Required stylesheet: `refract-ui/styles.css` (component styles + a couple of
-shared keyframes). Optional: `refract-ui/reset.css` (a minimal CSS reset) and
+Required stylesheets: `refract-ui/styles.css` (component styles + a couple of
+shared keyframes) and `refract-ui/tokens.css` (the CSS custom properties
+components read from — see the Storybook Theming page for the full
+reference). Optional: `refract-ui/reset.css` (a minimal CSS reset) and
 `refract-ui/media.css` (the breakpoint contract as `@custom-media`, for
 consumers running their own `postcss-preset-env`).
 
