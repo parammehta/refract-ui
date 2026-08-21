@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Version & Release
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          # A PAT (not the default GITHUB_TOKEN) is required so that both:
+          #   1. the auto-merge below produces a push that RE-TRIGGERS this
+          #      workflow (letting release-please tag + publish the release), and
+          #   2. the published GitHub Release fires the `release_created` output
+          #      that the publish job below (and the Storybook deploy workflow)
+          #      depend on. Actions taken with GITHUB_TOKEN never trigger workflows.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      # Merge ONLY the Release PR that release-please just created (targeted by
+      # its exact PR number) so releases ship without manual intervention. No
+      # other PRs are affected.
+      #
+      # `--auto` queues the merge behind main's required status checks instead
+      # of merging immediately: with branch protection in place a direct merge
+      # would be rejected while CI is still pending. This requires the repo's
+      # "Allow auto-merge" setting to be enabled.
+      - name: Merge the Release PR
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+        run: gh pr merge --squash --auto "${{ fromJson(steps.release.outputs.pr).number }}" -R ${{ github.repository }}
+
+  publish:
+    name: Publish to npm
+    needs: release
+    if: ${{ needs.release.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.12.0'
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+      - run: npm install -g npm@latest
+      - run: npm ci
+      - run: npm run build
+      - run: npm publish
