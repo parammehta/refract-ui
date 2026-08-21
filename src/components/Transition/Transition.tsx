@@ -42,10 +42,15 @@ export const Transition = ({
   const exitTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
+    // Cancel a stale, opposite-direction timer left over from a rapid
+    // show/hide flip — not the one TransitionContent's own effect just
+    // scheduled for *this* direction (that ran first, since child effects
+    // fire before parent effects, and clearing it here every time would
+    // cancel every enter/exit before it ever gets to fire).
     if (show) {
-      clearTimeout(enterTimeout.current);
-    } else {
       clearTimeout(exitTimeout.current);
+    } else {
+      clearTimeout(enterTimeout.current);
     }
   }, [show]);
 
