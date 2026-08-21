@@ -6,6 +6,14 @@ displacement carousel), with no Next.js or portfolio-specific coupling.
 
 Storybook: https://storybook.parammehta.com
 
+## Components
+
+Text, Heading, Section, List, Divider, Table, VisuallyHidden, Transition, Loader, Icon,
+SegmentedControl, Input, TextArea, Button, Link, Breadcrumbs, ScrambleReveal, Image, Wordmark,
+ThemeProvider, LinkProvider, RefractProvider — all from the default `refract-ui` entry.
+`Model` and `Carousel` are separate entries (`refract-ui/model`, `refract-ui/carousel`) so
+`three`/`three-stdlib` never land in a bundle that doesn't use them.
+
 ## Install
 
 ```bash
