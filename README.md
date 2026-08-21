@@ -1,4 +1,4 @@
-# @refract/ui
+# refract-ui
 
 Themeable React component library — extracted from [parammehta.com](https://parammehta.com).
 Primitives, form controls, and a couple of Three.js pieces (device models, a
@@ -9,18 +9,18 @@ Storybook: https://storybook.parammehta.com
 ## Install
 
 ```bash
-npm i @refract/ui
+npm i refract-ui
 ```
 
 `react`, `react-dom`, and `framer-motion` are peer dependencies. `three` and
-`three-stdlib` are optional peers, only required if you use `@refract/ui/model`
-or `@refract/ui/carousel`.
+`three-stdlib` are optional peers, only required if you use `refract-ui/model`
+or `refract-ui/carousel`.
 
 ## Usage
 
 ```tsx
-import { Text, ThemeProvider, tokenStyles } from '@refract/ui';
-import '@refract/ui/styles.css';
+import { Text, ThemeProvider, tokenStyles } from 'refract-ui';
+import 'refract-ui/styles.css';
 
 function App() {
   return (
@@ -31,9 +31,9 @@ function App() {
 }
 ```
 
-Required stylesheet: `@refract/ui/styles.css` (component styles + a couple of
-shared keyframes). Optional: `@refract/ui/reset.css` (a minimal CSS reset) and
-`@refract/ui/media.css` (the breakpoint contract as `@custom-media`, for
+Required stylesheet: `refract-ui/styles.css` (component styles + a couple of
+shared keyframes). Optional: `refract-ui/reset.css` (a minimal CSS reset) and
+`refract-ui/media.css` (the breakpoint contract as `@custom-media`, for
 consumers running their own `postcss-preset-env`).
 
 ### Routing
@@ -43,7 +43,7 @@ plain `<a>`. To route through your framework's link component, wrap your app
 in `LinkProvider`:
 
 ```tsx
-import { LinkProvider } from '@refract/ui';
+import { LinkProvider } from 'refract-ui';
 import NextLink from 'next/link';
 import { forwardRef } from 'react';
 
@@ -65,7 +65,7 @@ decoder. Both are optional peer dependencies — install them yourself, then:
 
 ```bash
 cp -R node_modules/three/examples/jsm/libs/draco/gltf/ public/draco/
-cp node_modules/@refract/ui/dist/assets/*.glb public/models/
+cp node_modules/refract-ui/dist/assets/*.glb public/models/
 ```
 
 Both paths are configurable via `RefractProvider`'s `dracoDecoderPath` and
