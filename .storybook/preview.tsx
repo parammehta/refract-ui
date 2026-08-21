@@ -3,9 +3,8 @@ import '../src/styles/animations.css';
 import './preview.css';
 
 import type { Preview } from '@storybook/react-vite';
+import { ThemeProvider, tokenStyles } from '../src/components/ThemeProvider';
 
-// TODO(phase 3): wrap in <RefractProvider> once ThemeProvider/RefractProvider
-// are copied over, and inline tokenStyles the way _document.page.tsx does.
 const preview: Preview = {
   initialGlobals: { theme: 'dark' },
   globalTypes: {
@@ -23,10 +22,13 @@ const preview: Preview = {
       const theme = context.globals.theme as 'light' | 'dark';
       document.body.dataset.theme = theme;
       return (
-        <div id="story-root" className="storyRoot">
-          <Story />
-          <div id="portal-root" />
-        </div>
+        <ThemeProvider themeId={theme}>
+          <style>{tokenStyles}</style>
+          <div id="story-root" className="storyRoot">
+            <Story />
+            <div id="portal-root" />
+          </div>
+        </ThemeProvider>
       );
     },
   ],

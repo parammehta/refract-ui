@@ -68,7 +68,7 @@
     "@types/three": "^0.185.3",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.39.5",
-    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-storybook": "^10.5.5",
     "framer-motion": "^7.10.3",
     "fs-extra": "^10.1.0",
@@ -96,7 +96,7 @@
   "scripts": {
     "dev": "storybook dev -p 9009 -h localhost",
     "storybook": "storybook dev -p 9009 -h localhost",
-    "build": "vite build && node scripts/copy-static-css.cjs",
+    "build": "vite build && node scripts/copy-static-assets.cjs && node scripts/build-tokens-css.cjs",
     "build:storybook": "storybook build -o build-storybook && node scripts/draco-storybook.cjs && node scripts/models-storybook.cjs",
     "lint": "eslint .",
     "stylelint": "stylelint \"src/**/*.css\"",
