@@ -57,7 +57,9 @@ jobs:
           node-version: '24.12.0'
           registry-url: 'https://registry.npmjs.org'
           cache: npm
-      - run: npm install -g npm@latest
+      # npm bundled with Node 24.12.0 is already >= 11.5.1, the minimum for
+      # trusted publishing — `npm install -g npm@latest` fails here because
+      # the newest npm requires a newer Node than this repo pins.
       - run: npm ci
       - run: npm run build
       - run: npm publish
