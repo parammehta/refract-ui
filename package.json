@@ -24,12 +24,12 @@
       "require": "./dist/index.cjs"
     },
     "./model": {
-      "types": "./dist/model.d.ts",
+      "types": "./dist/entries/model.d.ts",
       "import": "./dist/model.js",
       "require": "./dist/model.cjs"
     },
     "./carousel": {
-      "types": "./dist/carousel.d.ts",
+      "types": "./dist/entries/carousel.d.ts",
       "import": "./dist/carousel.js",
       "require": "./dist/carousel.cjs"
     },
@@ -96,7 +96,7 @@
   "scripts": {
     "dev": "storybook dev -p 9009 -h localhost",
     "storybook": "storybook dev -p 9009 -h localhost",
-    "build": "vite build && node scripts/copy-static-assets.cjs && node scripts/build-tokens-css.cjs",
+    "build": "vite build && node scripts/copy-static-assets.cjs && node scripts/build-tokens-css.cjs && node scripts/verify-exports.cjs",
     "build:storybook": "storybook build -o build-storybook && node scripts/draco-storybook.cjs && node scripts/models-storybook.cjs",
     "lint": "eslint .",
     "stylelint": "stylelint \"src/**/*.css\"",
