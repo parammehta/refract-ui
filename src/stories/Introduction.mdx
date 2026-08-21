@@ -1,0 +1,88 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Introduction" />
+
+# refract-ui
+
+A themeable React component library, extracted from [parammehta.com](https://parammehta.com).
+Primitives, form controls, and a couple of Three.js pieces (device models, a displacement
+carousel) — no Next.js or portfolio-specific coupling, so it drops into any React app.
+
+Browse the components in the sidebar, or read on for install and theming basics. Theming
+(tokens, `ThemeProvider`, dark/light) has its own page — see **Theming** below.
+
+## Install
+
+```bash
+npm i refract-ui
+```
+
+`react`, `react-dom`, and `framer-motion` are peer dependencies. `three` and `three-stdlib`
+are optional peers, only required if you use `refract-ui/model` or `refract-ui/carousel`.
+
+## Usage
+
+```tsx
+import { Text, ThemeProvider, tokenStyles } from 'refract-ui';
+import 'refract-ui/styles.css';
+
+function App() {
+  return (
+    <ThemeProvider>
+      <Text size="l">Hello</Text>
+    </ThemeProvider>
+  );
+}
+```
+
+## Stylesheets
+
+Four CSS files ship from the package:
+
+- `refract-ui/styles.css` — **required.** Component styles plus the `fadeIn`/`reveal`
+  keyframes several components reference.
+- `refract-ui/tokens.css` — **required.** The CSS custom properties (`ColorSwatches`,
+  spacing, type scale, motion) that component styles read from. See **Theming** for the
+  full reference.
+- `refract-ui/reset.css` — optional, a minimal CSS reset.
+- `refract-ui/media.css` — optional, the breakpoint contract as `@custom-media`, for
+  consumers running their own `postcss-preset-env`.
+
+## Routing
+
+Components that render links (`Link`, `Button`, `Breadcrumbs`) default to a plain `<a>`.
+To route through your framework's link component, wrap your app in `LinkProvider`:
+
+```tsx
+import { LinkProvider } from 'refract-ui';
+import NextLink from 'next/link';
+import { forwardRef } from 'react';
+
+const NextLinkAdapter = forwardRef((props, ref) => <NextLink {...props} ref={ref} />);
+
+<LinkProvider component={NextLinkAdapter}>{/* ... */}</LinkProvider>;
+```
+
+## Fonts
+
+No fonts are bundled. `--fontStack` falls back to `--brandFontStack` (unset by default)
+then the system font stack — set `--brandFontStack` to use your own brand typeface.
+
+## 3D components (`Model`, `Carousel`)
+
+These use `three`/`three-stdlib` and load `.glb` device models via a DRACO decoder. They
+live in their own bundles — `refract-ui/model` and `refract-ui/carousel` — so `three`
+never lands in an app that only uses the primitives. Install the peer deps yourself, then:
+
+```bash
+cp -R node_modules/three/examples/jsm/libs/draco/gltf/ public/draco/
+cp node_modules/refract-ui/dist/assets/*.glb public/models/
+```
+
+Both paths are configurable via `RefractProvider`'s `dracoDecoderPath` and `modelBasePath`
+props if you serve them elsewhere.
+
+## Links
+
+- [refract-ui on npm](https://www.npmjs.com/package/refract-ui)
+- [refract-ui on GitHub](https://github.com/parammehta/refract-ui)

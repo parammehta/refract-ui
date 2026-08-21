@@ -1,0 +1,107 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { ColorSwatches, TokenTable, ResponsiveTokens } from './TokenTable';
+
+<Meta title="Theming" />
+
+# Theming
+
+refract-ui is themed through a small set of CSS custom properties. Every component reads
+its colors, spacing, type sizes, and motion values from these tokens — set them once and
+every component follows.
+
+## `ThemeProvider`
+
+```tsx
+import { ThemeProvider } from 'refract-ui';
+
+<ThemeProvider themeId="dark">{/* ... */}</ThemeProvider>;
+```
+
+- `themeId` — `'dark'` (default) or `'light'`.
+- `theme` — an object of per-token overrides, merged over the selected `themeId`'s
+  defaults.
+- `as` / `className` — only apply when this `ThemeProvider` is **nested** inside another
+  one. The outermost ("root") provider renders its children directly and just sets tokens
+  on `<body>`; a nested provider renders a real element with `data-theme` so a subtree can
+  be themed independently of its parent.
+- `themeColor` — defaults to `true`. The root provider keeps
+  `<meta name="theme-color">` in sync with `--rgbBackground`; pass `false` to opt out.
+
+## Getting the tokens onto the page
+
+Component styles expect the token custom properties to already be defined on `:root` /
+`[data-theme]`. Two ways to get them there:
+
+1. **Ship the stylesheet** — include `refract-ui/tokens.css` alongside `styles.css`.
+2. **Inline them** — import the `tokenStyles` string and render it in a `<style>` tag
+   before your app mounts, to avoid a flash of unstyled content:
+
+```tsx
+import { tokenStyles } from 'refract-ui';
+
+<style>{tokenStyles}</style>;
+```
+
+This is what this Storybook does (see `.storybook/preview.tsx`).
+
+## Reading the theme in JS
+
+```tsx
+import { useTheme } from 'refract-ui';
+
+const theme = useTheme();
+theme.rgbBackground; // '17 17 17'
+```
+
+Returns the nearest `ThemeProvider`'s resolved token object (or `{}` outside one).
+
+## Token reference
+
+Values below are read directly from the library's token source, so they always match what
+ships.
+
+### Colors
+
+Each token is defined per theme. Channel-triplet values (`rgbBackground`,
+`rgbPrimary`, ...) render as a swatch; derived values (`colorTextBody`, ...) are shown as
+their raw `rgb(var(--rgbText) / …)` expression, since they reference `--rgbText` rather
+than holding a static color themselves.
+
+<ColorSwatches />
+
+### Type scale
+
+<TokenTable group="fontSize" />
+
+### Font stacks & weights
+
+<TokenTable group="fontStack" />
+<TokenTable group="fontWeight" />
+<TokenTable group="lineHeight" />
+
+### Spacing
+
+<TokenTable group="space" />
+
+### Max widths
+
+<TokenTable group="maxWidth" />
+
+### Motion
+
+<TokenTable group="duration" />
+
+### Z-index
+
+<TokenTable group="zIndex" />
+
+## Responsive tokens
+
+Several tokens (mostly type scale and spacing) shrink at narrower viewports.
+`tokenStyles` emits these as `@media (max-width: …)` blocks scoped to `:root`, so they
+apply automatically wherever the base tokens are loaded — no extra setup required.
+
+<ResponsiveTokens />
+
+`refract-ui/media.css` exposes the same breakpoints as `@custom-media`, for consumers who
+want to reuse them in their own stylesheets via `postcss-preset-env`.
