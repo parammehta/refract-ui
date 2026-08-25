@@ -10,8 +10,9 @@ for an overview and the token reference.
 ## Components
 
 Text, Heading, Section, List, Divider, Table, VisuallyHidden, Transition, Loader, Icon,
-SegmentedControl, Input, TextArea, Button, Link, Breadcrumbs, ScrambleReveal, Image, Wordmark,
-ThemeProvider, LinkProvider, RefractProvider — all from the default `refract-ui` entry.
+SegmentedControl, Input, TextArea, Button, Link, Breadcrumbs, ScrambleReveal, ScrollTimeline,
+Image, Wordmark, ThemeProvider, LinkProvider, RefractProvider — all from the default
+`refract-ui` entry.
 `Model` and `Carousel` are separate entries (`refract-ui/model`, `refract-ui/carousel`) so
 `three`/`three-stdlib` never land in a bundle that doesn't use them.
 
@@ -81,6 +82,46 @@ cp node_modules/refract-ui/dist/assets/*.glb public/models/
 
 Both paths are configurable via `RefractProvider`'s `dracoDecoderPath` and
 `modelBasePath` props if you serve them elsewhere.
+
+### `ScrollTimeline`
+
+A horizontal timeline whose travel is driven by vertical scroll: the section
+reserves a runway several viewports tall, a viewport inside it sticks to the
+top, and progress through the runway pans the track sideways.
+
+```tsx
+<ScrollTimeline
+  items={items}                       // { id, label, group?, accent? }[]
+  label="Work history"
+  renderItem={(item, { active, distance, side }) => <Card … />}
+  scrollContainerRef={containerRef}   // only if the page scrolls an element
+  scrollRatio={0.8}                   // runway = scrollRatio × item count, in viewports
+  onActiveChange={(item, index) => …}
+>
+  {/* pinned inside the sticky viewport for the whole pan */}
+</ScrollTimeline>
+```
+
+`renderItem` owns the card; the axis, stem, dot, group heading and roving-tabindex
+keyboard nav are the component's. Its `distance` argument is the signed offset from
+the active item — key expensive card content (canvases, large images) off that so
+only the items near the centre pay for it.
+
+Two things it needs from the page:
+
+- **A positioned scroll container.** When you pass `scrollContainerRef`, that
+  element must not be `position: static`. Scroll progress is measured by walking
+  `offsetParent` up from the timeline to the container; a static container is
+  never in that chain, so the walk runs off the top of the document and progress
+  silently pins at 0 — the timeline renders but never moves.
+- **Room for anything you pin in the overlay.** `children` render over the track
+  and stay put; set `--timelineInset` to the space they need at each end so the
+  tallest card stops short of them.
+
+Other knobs: `--timelineViewportHeight` (default `100svh`) sizes the sticky
+viewport and the runway derived from it, and `--timelineFade` (default `5%`) is
+how much of each end fades out, which also keeps cards clear of anything the
+page fixes to the left or right edge.
 
 ## Development
 
