@@ -1,0 +1,241 @@
+.scroll {
+  /* The vertical runway the horizontal travel is spread over. `--runway` is set
+     inline from the item count, so adding an item lengthens the section rather
+     than making the existing pan faster.
+
+     Sized against `--timelineViewportHeight` rather than a percentage of the
+     parent: the parent's height has to be `auto` for the runway to take effect
+     at all, and a percentage of an auto-height parent resolves to auto, so the
+     section would collapse. Consumers whose sticky viewport is not the full
+     screen (an inset scroller, a pane with a fixed header) override the
+     variable. */
+  height: calc(var(--timelineViewportHeight, 100svh) * var(--runway, 4));
+  position: relative;
+}
+
+.viewport {
+  position: sticky;
+  top: 0;
+  height: var(--timelineViewportHeight, 100svh);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+
+  /* Deliberately NOT `overscroll-behavior: none`. `overflow: hidden` still
+     makes this a scroll box, so suppressing overscroll here stops the wheel
+     chaining out to the page — and since this element covers the screen for
+     the whole pan, the runway that drives it becomes unreachable by wheel.
+     The box never scrolls itself: the track moves by transform, and cards are
+     focused with `preventScroll`. */
+
+  /* Cards travel the full width, so at the clip edges they are cut mid-word —
+     and on a page with anything fixed to the left or right edge (a nav rail,
+     social links) they appear to slide out from under it. Fading the last
+     stretch at each end resolves both. */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--timelineFade, 5%),
+    #000 calc(100% - var(--timelineFade, 5%)),
+    transparent
+  );
+}
+
+.track {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  /* A definite height, so each slot's 50% spacer has something to resolve
+     against — that spacer is what puts a card wholly on one side of the axis.
+     `--timelineInset` shortens it at both ends, which is how a consumer keeps
+     the tallest card clear of whatever it pins top and bottom in the overlay;
+     the track stays centred, so the axis does not move. */
+  height: calc(100% - var(--timelineInset, 0px) * 2);
+  width: max-content;
+
+  /* Half a viewport of lead-in and lead-out, so the first and last cards can
+     each reach the centre instead of stopping against an edge. */
+  padding-inline: 50%;
+  gap: var(--spaceXL);
+  will-change: transform;
+}
+
+.axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgb(var(--rgbText) / 0.25) 8%,
+    rgb(var(--rgbText) / 0.25) 92%,
+    transparent
+  );
+}
+
+.slot {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+
+  /* Fills the half of the slot the card is *not* in. Centring the slot's
+     contents instead would leave every card straddling the axis, which makes
+     `data-side` a reordering with no visible effect. */
+  &::before {
+    content: '';
+    flex: 0 0 50%;
+  }
+
+  /* Reversed, the spacer falls to the bottom and the run reads card, stem,
+     spacer from the top — so the card sits above the axis with its stem
+     reaching down to it. Unreversed gives the mirror image. */
+  &[data-side='above'] {
+    flex-direction: column-reverse;
+  }
+}
+
+.group {
+  position: absolute;
+
+  /* In the half the card is *not* in, just off the axis. At the top of the
+     viewport it would collide with whatever the consumer pins in the overlay,
+     and the opposite half is empty by construction. */
+  top: calc(50% + var(--spaceL));
+  font-size: var(--fontSizeBodyS);
+  font-weight: var(--fontWeightMedium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(var(--rgbText) / 0.4);
+  pointer-events: none;
+
+  .slot[data-side='below'] & {
+    top: auto;
+    bottom: calc(50% + var(--spaceL));
+  }
+}
+
+.stem {
+  width: 1px;
+  flex: 0 0 var(--spaceL);
+  height: var(--spaceL);
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--rgbText) / 0.05),
+    rgb(var(--rgbText) / 0.3)
+  );
+
+  .slot[data-side='above'] & {
+    background: linear-gradient(
+      to top,
+      rgb(var(--rgbText) / 0.05),
+      rgb(var(--rgbText) / 0.3)
+    );
+  }
+}
+
+.dot {
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: rgb(var(--rgbBackground));
+  border: 1px solid rgb(var(--rgbText) / 0.35);
+
+  @media (--mediaUseMotion) {
+    transition-property: background, border-color, transform;
+    transition-duration: var(--durationM);
+    transition-timing-function: var(--bezierFastoutSlowin);
+  }
+
+  .slot:has(.card[data-active='true']) & {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: scale(1.35);
+  }
+}
+
+.card {
+  display: block;
+
+  /* Exactly its half, less the stem — a definite box, not a cap. A cap only
+     clips the border box: content taller than it still paints straight across
+     the axis and into the cards opposite. Given a real height, the card can
+     lay its own content out against something, and `renderItem` content sized
+     to 100% is guaranteed to stay on its own side. */
+  height: calc(50% - var(--spaceL));
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transform-origin: center;
+  opacity: 0.42;
+
+  @media (--mediaUseMotion) {
+    transition-property: opacity, transform;
+    transition-duration: var(--durationL);
+    transition-timing-function: var(--bezierFastoutSlowin);
+  }
+
+  /* Off-centre cards sit back and dimmed, so the one at the centre reads as
+     the subject rather than as one of a row of equals. */
+  transform: scale(0.82);
+
+  &[data-active='true'] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: var(--spaceS);
+  }
+}
+
+/* Without a pointer there is no hover state to lift, and a coarse pointer
+   dragging past a card should not leave it stuck raised. */
+@media (--mediaNoTouch) {
+  .card:hover {
+    opacity: 1;
+  }
+}
+
+@media (--mediaTablet) {
+  .track {
+    gap: var(--spaceL);
+  }
+
+  .stem {
+    flex-basis: var(--spaceM);
+    height: var(--spaceM);
+  }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: var(--spaceL);
+
+  /* An overlay layer, not a lid: the cards underneath stay clickable and the
+     children opt back in individually. */
+  pointer-events: none;
+
+  & > * {
+    pointer-events: auto;
+  }
+}

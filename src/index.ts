@@ -16,6 +16,7 @@ export * from './components/Link';
 export * from './components/Button';
 export * from './components/Breadcrumbs';
 export * from './components/ScrambleReveal';
+export * from './components/ScrollTimeline';
 export * from './components/Image';
 export * from './components/Wordmark';
 export * from './components/ThemeProvider';

@@ -85,6 +85,26 @@ types/            — ambient module declarations for *.svg, *.glb, *.png, *.jpg
                     the way Next's `next-env.d.ts` provides
 ```
 
+## ScrollTimeline's two silent failure modes
+
+Both cost real debugging time once, so they are worth knowing before touching it:
+
+- **The scroll container must be positioned.** framer-motion's scroll tracking
+  locates the target inside a custom container by walking `offsetParent` up from
+  the target until it reaches the container. A `position: static` container is
+  never in that chain, so the walk runs off the top of the document, progress
+  pins at 0, and the timeline renders perfectly while never moving.
+- **`useScroll` must not run as a layout effect** (`layoutEffect: false`). It
+  reads `container.current` exactly once, on mount, and React attaches a
+  parent's ref *after* its children's layout effects run — so a layout-effect
+  read finds `null` and falls back to scrolling the window, which is the one
+  thing `scrollContainerRef` exists to prevent.
+
+Also: the sticky viewport deliberately does **not** set `overscroll-behavior:
+none`. `overflow: hidden` still makes it a scroll box, so suppressing overscroll
+stops the wheel chaining out to the page — and because it covers the screen for
+the whole pan, the runway driving it becomes unreachable by wheel.
+
 ## Component conventions
 
 Same shape as the portfolio (where all of this was extracted from):
