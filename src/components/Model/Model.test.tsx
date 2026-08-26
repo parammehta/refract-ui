@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { StrictMode } from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Model } from './Model';
 import { ModelAnimationType } from './deviceModels';
 
@@ -18,14 +19,31 @@ import { ModelAnimationType } from './deviceModels';
 // TextureLoader) needs real network responses jsdom can't provide, so
 // loaded-state and animation behavior for individual devices stays
 // Playwright/Storybook territory, not unit-test territory.
+// Hoisted so the `three` mock factory can close over it. Recording the canvas
+// each renderer releases — rather than a bare call count — is what lets the
+// tests below state the real invariant: no canvas still on the page has had its
+// WebGL context taken away.
+const { releasedCanvases } = vi.hoisted(() => ({
+  releasedCanvases: [] as HTMLCanvasElement[],
+}));
+
 vi.mock('three', async importOriginal => {
   const three = await importOriginal<typeof import('three')>();
 
-  function MockWebGLRenderer(this: Record<string, unknown>) {
+  function MockWebGLRenderer(
+    this: Record<string, unknown>,
+    parameters?: { canvas?: HTMLCanvasElement }
+  ) {
+    // Mirrors the real renderer: it uses the canvas it was given, or makes one
+    // and owns it. Model takes the second path, and the tests below assert
+    // against those very elements, so a stand-in canvas would make them vacuous.
+    const domElement = parameters?.canvas ?? document.createElement('canvas');
+
     const target: Record<string, unknown> = {
-      domElement: document.createElement('canvas'),
+      domElement,
       capabilities: { getMaxAnisotropy: () => 1, isWebGL2: true },
       outputColorSpace: three.SRGBColorSpace,
+      forceContextLoss: () => releasedCanvases.push(domElement),
     };
 
     return new Proxy(target, {
@@ -80,6 +98,47 @@ const models = [
     animation: ModelAnimationType.SpringUp,
   },
 ];
+
+describe('Model renderer lifecycle', () => {
+  // A WebGL context is a scarce, browser-wide resource: they are capped (~16 in
+  // Chrome) and the *oldest* is evicted once that cap is passed, so a Model that
+  // holds onto its context after unmounting eventually kills an unrelated,
+  // still-visible canvas elsewhere on the page. These assert both halves of
+  // getting that right — release what is gone, keep what is on screen — against
+  // a real mount/unmount rather than against the teardown helper in isolation.
+  beforeEach(() => {
+    releasedCanvases.length = 0;
+  });
+
+  it('releases its WebGL context and removes its canvas when it unmounts', () => {
+    const { container, unmount } = render(<Model models={models} alt="A laptop" />);
+
+    const canvas = container.querySelector('canvas');
+    expect(canvas).toBeInTheDocument();
+
+    unmount();
+
+    expect(releasedCanvases).toContain(canvas);
+  });
+
+  it('leaves a live canvas behind after StrictMode remounts it', () => {
+    // StrictMode runs the effect, tears it down, and runs it again. The renderer
+    // owns its canvas, so the second run builds a fresh one — which is what lets
+    // teardown release the context unconditionally. What must hold either way is
+    // that exactly one canvas is left and its context is intact: a canvas whose
+    // context has been lost can never hand out another one.
+    const { container } = render(
+      <StrictMode>
+        <Model models={models} alt="A laptop" />
+      </StrictMode>
+    );
+
+    const canvases = container.querySelectorAll('canvas');
+
+    expect(canvases).toHaveLength(1);
+    expect(releasedCanvases).not.toContain(canvases[0]);
+  });
+});
 
 describe('Model', () => {
   it('mounts without throwing and renders a canvas', () => {
