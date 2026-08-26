@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/parammehta/refract-ui/compare/v1.1.0...v1.2.0) (2026-08-26)
+
+
+### Features
+
+* add startSide to ScrollTimeline ([#9](https://github.com/parammehta/refract-ui/issues/9)) ([069a4b4](https://github.com/parammehta/refract-ui/commit/069a4b468cc36807a228cbffad2006091b3961e5))
+
 ## [1.1.0](https://github.com/parammehta/refract-ui/compare/v1.0.2...v1.1.0) (2026-08-26)
 
 
