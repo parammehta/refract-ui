@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/parammehta/refract-ui/compare/v1.2.0...v1.2.1) (2026-08-26)
+
+
+### Bug Fixes
+
+* let renderers own their canvas so contexts are released ([#11](https://github.com/parammehta/refract-ui/issues/11)) ([c01a97f](https://github.com/parammehta/refract-ui/commit/c01a97ffcf213271e5278dd748a68f3f8fccf71f))
+
 ## [1.2.0](https://github.com/parammehta/refract-ui/compare/v1.1.0...v1.2.0) (2026-08-26)
 
 

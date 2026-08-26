@@ -1,6 +1,6 @@
 {
   "name": "refract-ui",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Themeable React component library — primitives, form controls, and Three.js device/carousel components.",
   "homepage": "https://storybook.parammehta.com",
   "repository": "https://github.com/parammehta/refract-ui.git",
