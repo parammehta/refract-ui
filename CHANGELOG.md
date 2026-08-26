@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/parammehta/refract-ui/compare/v1.0.2...v1.1.0) (2026-08-26)
+
+
+### Features
+
+* add ScrollTimeline, a scroll-driven horizontal timeline ([#7](https://github.com/parammehta/refract-ui/issues/7)) ([2798997](https://github.com/parammehta/refract-ui/commit/279899713cdc4701ac413f085a3a66a1bedb73fa))
+
 ## [1.0.2](https://github.com/parammehta/refract-ui/compare/v1.0.1...v1.0.2) (2026-08-21)
 
 
