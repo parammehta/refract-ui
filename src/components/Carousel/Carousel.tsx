@@ -18,7 +18,7 @@ import {
 import type { Texture } from 'three';
 import { resolveSrcFromSrcSet } from '../../utils/image';
 import { cssProps } from '../../utils/style';
-import { cleanRenderer, cleanScene, textureLoader } from '../../utils/three';
+import { cleanRenderer, cleanScene, mountRenderer, textureLoader } from '../../utils/three';
 import styles from './Carousel.module.css';
 import fragment from './carousel.frag.glsl?raw';
 import vertex from './carousel.vert.glsl?raw';
@@ -57,7 +57,7 @@ export const Carousel = ({ width, height, images, placeholder, ...rest }: Carous
   const [showPlaceholder, setShowPlaceholder] = useState(true);
   const [textures, setTextures] = useState<Texture[]>();
   const [canvasRect, setCanvasRect] = useState<DOMRect>();
-  const canvas = useRef<HTMLCanvasElement>(null);
+  const canvasWrapper = useRef<HTMLDivElement>(null);
   const imagePlane = useRef<Mesh>();
   const geometry = useRef<PlaneGeometry>();
   const material = useRef<ShaderMaterial>();
@@ -69,7 +69,7 @@ export const Carousel = ({ width, height, images, placeholder, ...rest }: Carous
   const lastSwipePosition = useRef<number>();
   const scheduledAnimationFrame = useRef<number>();
   const reduceMotion = useReducedMotion();
-  const inViewport = useInViewport(canvas, true);
+  const inViewport = useInViewport(canvasWrapper, true);
   const placeholderRef = useRef<HTMLImageElement>(null);
   const initSwipeX = useRef<number>();
 
@@ -89,13 +89,14 @@ export const Carousel = ({ width, height, images, placeholder, ...rest }: Carous
 
   useEffect(() => {
     const cameraOptions = [width / -2, width / 2, height / 2, height / -2, 1, 1000] as const;
-    renderer.current = new WebGLRenderer({
-      canvas: canvas.current!,
+    renderer.current = mountRenderer(canvasWrapper.current!, {
+      className: styles.canvas,
       antialias: false,
       alpha: true,
       powerPreference: 'high-performance',
       failIfMajorPerformanceCaveat: true,
     });
+    renderer.current.domElement.setAttribute('aria-hidden', 'true');
     camera.current = new OrthographicCamera(...cameraOptions);
     scene.current = new Scene();
     renderer.current.setPixelRatio(2);
@@ -237,7 +238,7 @@ export const Carousel = ({ width, height, images, placeholder, ...rest }: Carous
 
   useEffect(() => {
     const handleResize = () => {
-      const rect = canvas.current!.getBoundingClientRect();
+      const rect = canvasWrapper.current!.getBoundingClientRect();
       setCanvasRect(rect);
     };
 
@@ -390,9 +391,8 @@ export const Carousel = ({ width, height, images, placeholder, ...rest }: Carous
             aria-live="polite"
             aria-label={currentImageAlt}
             role="img"
-          >
-            <canvas aria-hidden className={styles.canvas} ref={canvas} />
-          </div>
+            ref={canvasWrapper}
+          />
           {showPlaceholder && placeholder && (
             <img
               aria-hidden

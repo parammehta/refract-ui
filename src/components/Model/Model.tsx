@@ -38,6 +38,7 @@ import {
   cleanRenderer,
   cleanScene,
   getModelLoader,
+  mountRenderer,
   removeLights,
   textureLoader,
 } from '../../utils/three';
@@ -105,7 +106,6 @@ export const Model = ({
   const resolvedDecoderPath = decoderPath ?? dracoDecoderPath;
   const [loaded, setLoaded] = useState(false);
   const container = useRef<HTMLDivElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
   const camera = useRef<PerspectiveCamera>();
   const modelGroup = useRef<Group>();
   const scene = useRef<Scene>();
@@ -130,8 +130,8 @@ export const Model = ({
   useEffect(() => {
     const { clientWidth, clientHeight } = container.current!;
 
-    renderer.current = new WebGLRenderer({
-      canvas: canvas.current!,
+    renderer.current = mountRenderer(container.current!, {
+      className: styles.canvas,
       alpha: true,
       antialias: false,
       powerPreference: 'high-performance',
@@ -360,7 +360,6 @@ export const Model = ({
       aria-label={alt}
       {...rest}
     >
-      <canvas className={styles.canvas} ref={canvas} />
       {models.map((model, index) => (
         <Device
           key={JSON.stringify(model.position)}
