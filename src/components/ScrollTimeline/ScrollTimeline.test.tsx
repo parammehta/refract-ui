@@ -54,6 +54,14 @@ describe('ScrollTimeline', () => {
     expect(sides).toEqual(['above', 'below', 'above']);
   });
 
+  it('starts the alternation on the requested side', () => {
+    const { container } = renderTimeline({ startSide: 'below' });
+    const sides = Array.from(container.querySelectorAll('[data-side]')).map(node =>
+      node.getAttribute('data-side')
+    );
+    expect(sides).toEqual(['below', 'above', 'below']);
+  });
+
   it('gives only the active item a tab stop', () => {
     renderTimeline();
     // A roving tabindex: tabbing onto every card would scroll a full runway

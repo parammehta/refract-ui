@@ -33,7 +33,7 @@ const items: Milestone[] = [
  * rather than relying on the Storybook canvas, which is what a consuming page
  * with its own scroll container has to do too.
  */
-const Story = () => {
+const Story = ({ startSide }: { startSide?: 'above' | 'below' } = {}) => {
   const container = useRef<HTMLDivElement>(null);
 
   return (
@@ -42,6 +42,7 @@ const Story = () => {
         <Text secondary>Scroll down</Text>
       </div>
       <ScrollTimeline
+        startSide={startSide}
         items={items}
         scrollContainerRef={container}
         label="Career milestones"
@@ -78,3 +79,13 @@ const Story = () => {
 };
 
 export const Default: Story = { render: Story };
+
+/**
+ * `startSide` flips which side the alternation begins on. The alternation is a
+ * layout device and means nothing by itself — but when the items carry an order
+ * a reader will project onto the vertical axis, it decides which of an adjacent
+ * pair sits on top.
+ */
+export const StartBelow: Story = {
+  render: () => <Story startSide="below" />,
+};
