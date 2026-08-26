@@ -96,6 +96,7 @@ top, and progress through the runway pans the track sideways.
   renderItem={(item, { active, distance, side }) => <Card … />}
   scrollContainerRef={containerRef}   // only if the page scrolls an element
   scrollRatio={0.8}                   // runway = scrollRatio × item count, in viewports
+  startSide="above"                   // which side the alternation begins on
   onActiveChange={(item, index) => …}
 >
   {/* pinned inside the sticky viewport for the whole pan */}
@@ -103,7 +104,12 @@ top, and progress through the runway pans the track sideways.
 ```
 
 `renderItem` owns the card; the axis, stem, dot, group heading and roving-tabindex
-keyboard nav are the component's. Its `distance` argument is the signed offset from
+keyboard nav are the component's. Cards alternate above and below the axis so each
+gets its own half of it, which is what lets them be tall relative to the viewport —
+that alternation is a layout device and means nothing by itself, but `startSide`
+flips it for content whose order a reader will project onto the vertical axis
+(seniority, rank, size), where an adjacent pair can otherwise read as a hierarchy
+it isn't. Its `distance` argument is the signed offset from
 the active item — key expensive card content (canvases, large images) off that so
 only the items near the centre pay for it.
 

@@ -58,6 +58,16 @@ export interface ScrollTimelineProps {
    */
   scrollRatio?: number;
   /**
+   * Which side of the axis the first item sits on; sides alternate from there.
+   *
+   * The alternation is a layout device — it gives each card its own half of the
+   * axis, which is what lets cards be tall relative to the viewport. It says
+   * nothing about the items. When the content *does* carry an order the reader
+   * will project onto the vertical axis (seniority, rank, size), flipping this
+   * is how you keep a pair from reading as a hierarchy it isn't.
+   */
+  startSide?: 'above' | 'below';
+  /**
    * Rendered inside the sticky viewport, over the track — so it stays put for
    * the whole pan. Section headings and a call to action keyed off the active
    * item belong here rather than outside, where they would scroll away.
@@ -89,6 +99,7 @@ export const ScrollTimeline = ({
   label,
   onActiveChange,
   scrollRatio = 1,
+  startSide = 'above',
   children,
   className,
 }: ScrollTimelineProps) => {
@@ -257,10 +268,10 @@ export const ScrollTimeline = ({
 
   // Sides alternate so consecutive cards never queue up in one band, which is
   // what lets the cards be tall relative to the viewport.
-  const sides = useMemo<Array<'above' | 'below'>>(
-    () => items.map((_, index) => (index % 2 === 0 ? 'above' : 'below')),
-    [items]
-  );
+  const sides = useMemo<Array<'above' | 'below'>>(() => {
+    const opposite = startSide === 'above' ? 'below' : 'above';
+    return items.map((_, index) => (index % 2 === 0 ? startSide : opposite));
+  }, [items, startSide]);
 
   if (itemCount === 0) return null;
 
